@@ -128,3 +128,12 @@
 
 # Pyre type checker
 **/.pyre/
+
+# env files
+*.env
+
+# images, pdf, etc
+*.jpg
+*.jpeg
+*.png
+*.pdf
