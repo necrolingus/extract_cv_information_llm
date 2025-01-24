@@ -115,9 +115,11 @@ if data:
     file_type = check_if_image(data)
     if file_type:
         print(f"File is an image of type: {file_type}")
+        #upload the file to azure storage and get the sas token
+        #so that we can pass that SAS token to azure vision so that it can 
+        #access the file and extract the text from it
         azure_vision(file_name, file_type, data)
     else:
         is_pdf = check_if_pdf(data)
         if is_pdf:
             print(is_pdf)
-            azure_vision(file_name, file_type, data)
