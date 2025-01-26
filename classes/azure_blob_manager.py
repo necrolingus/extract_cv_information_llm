@@ -2,7 +2,7 @@ import requests
 import time
 from datetime import datetime, timedelta, timezone
 import xml.etree.ElementTree as ET
-from classes.generate_user_delegated_sas_token import userDelegatedSasToken
+from classes.azure_generate_user_delegated_sas_token import userDelegatedSasToken
 
 
 class AzureBlobManager:
@@ -41,12 +41,7 @@ class AzureBlobManager:
         self.refresh_token()
     return self.token
 
-  
-  def get_user_delegation_key(self, container_name):
-    headers = {'Authorization': f'Bearer {self.get_token()}'}
-    pass
-
-  
+    
   def upload_file(self, storage_url, container_name, prefix, file_name, file_type, data, azure_storage_file_tags):
     url = f"{storage_url}{container_name}/{prefix}/{file_name}"
     headers = {
@@ -60,7 +55,11 @@ class AzureBlobManager:
     return response
 
   
-  def get_user_delegated_sas_token_key(self, storage_url, container_name, prefix, file_name, delegation_key_valid_hours):
+  def get_user_delegated_sas_token(self, storage_url, container_name, prefix, file_name, delegation_key_valid_hours):
+    """
+      This function will first get the user delegation key, and then call class generate_user_delegated_sas_token
+      to generate the SAS token that will allow us to access the file.
+    """
     url = f"{storage_url}?restype=service&comp=userdelegationkey"
     headers = {
       'Authorization': f'Bearer {self.get_token()}',
@@ -90,6 +89,6 @@ class AzureBlobManager:
 
     #Get the actual SAS token that will allow us to access the file
     sas_token = userDelegatedSasToken(user_delegation_key_components, storage_url, container_name, prefix, file_name)
-    print(sas_token.generate_token())
-  
-    return user_delegation_key_components
+    sas_token = sas_token.generate_token()
+    
+    return sas_token

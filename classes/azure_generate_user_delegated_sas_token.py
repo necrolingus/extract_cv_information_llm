@@ -1,7 +1,7 @@
 import hmac
 import hashlib
 import base64
-from datetime import datetime, timedelta, timezone
+from urllib.parse import quote
 
 
 class userDelegatedSasToken:
@@ -35,7 +35,7 @@ class userDelegatedSasToken:
     def generate_token(self):
         #Get the container name only and build the canonical resource
         storage_account_name_only = self.storage_url.split('https://')[1].split('.')[0]
-        canonical_resource = f"/blob/{storage_account_name_only}/{self.container_name}/{self.prefix}/{self.file_name}" #"/blob/gofakeme/tester/tester.png" #Access only to a blob
+        canonical_resource = f"/blob/{storage_account_name_only}/{self.container_name}/{self.prefix}/{self.file_name}"
 
         # Canonical string with all necessary fields
         canonical_string = (
@@ -69,6 +69,7 @@ class userDelegatedSasToken:
         key = base64.b64decode(self.signed_key)
         signature = hmac.new(key, canonical_string.encode('utf-8'), hashlib.sha256).digest()
         signature_b64 = base64.b64encode(signature).decode('utf-8')
+        encoded_signature = quote(signature_b64, safe="")
 
         #Generate the SAS token
         sas_token = (
@@ -85,6 +86,7 @@ class userDelegatedSasToken:
                     f"&spr={self.signed_protocol}"
                     f"&sv={self.signed_storage_version}"
                     f"&sr={self.signed_resource}"
-                    f"&sig={signature_b64}"
+                    f"&sig={encoded_signature}"
                 )
+
         return sas_token
