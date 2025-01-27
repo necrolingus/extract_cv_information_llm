@@ -1,11 +1,10 @@
-import io
+import json
 import os
-import magic
-from PIL import Image
 from dotenv import load_dotenv
 from classes.file_manager import FileManager
 from classes.azure_blob_manager import AzureBlobManager
 from classes.azure_document_intelligence import AzureDocIntel
+from classes.langchain_manager import LangchainManager
 
 
 #References:
@@ -72,9 +71,11 @@ def azure_vision(file_name, file_type, data):
                                                    azure_storage_sas_valid_hours
     )
 
-    #give the sas token to the azure vision class to it can OCR it and save the text
-    ocr_job = AzureDocIntel(azure_vision_full_endpoint, azure_vision_headers, sas_token)
-    print(ocr_job.get_ocr_text())
+    #give the ocr data by passing in the sas token (the URL of the file)
+    ocr_manager= AzureDocIntel(azure_vision_full_endpoint, azure_vision_headers, sas_token)
+    ocr_response, ocr_text = ocr_manager.get_ocr_text()
+    
+    return ocr_response, ocr_text
 
 
 #Start
@@ -85,4 +86,12 @@ file_type, file_contents = file_manager.get_file_type_and_contents()
 
 if file_type not in ['aplication/pdf']:
     print(f"File is an image of type: {file_type}")
-    azure_vision(file_name, file_type, file_contents)
+    ocr_response, ocr_text = azure_vision(file_name, file_type, file_contents)
+
+    if ocr_response is not None:
+        lanchain_manager = LangchainManager(ocr_text, "text")
+        langchain_text = lanchain_manager.process()
+        print(langchain_text)
+    else:
+        print("Error with OCR")
+

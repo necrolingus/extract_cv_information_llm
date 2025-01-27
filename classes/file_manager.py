@@ -9,18 +9,18 @@ class FileManager:
         self.file_type = None
 
     
-    #get and thenreturn the file type
+    #get and then return the file type and its contents
     def get_file_type_and_contents(self):
-        file_contents = self.read_file()
+        file_contents = self._read_file()
         if file_contents is not None:
-            self.file_type = self.check_if_image(file_contents)
+            self.file_type = self._check_if_image(file_contents)
             if self.file_type is None:
-                self.file_type = self.check_if_pdf(file_contents)
+                self.file_type = self._check_if_pdf(file_contents)
         return self.file_type, file_contents
 
     
     #read file from disk
-    def read_file(self):
+    def _read_file(self):
         try:
             with open(self.file_path, 'rb') as f:
                 data = f.read()
@@ -31,7 +31,7 @@ class FileManager:
 
     
     #check if the file is an image using Pillow for accurate checking
-    def check_if_image(self, data):
+    def _check_if_image(self, data):
         try:
             image = Image.open(io.BytesIO(data))
             file_type = image.format.lower()
@@ -46,7 +46,7 @@ class FileManager:
 
     
     #check if file type is a PDF using the magic library
-    def check_if_pdf(self, data):
+    def _check_if_pdf(self, data):
         try:
             mime = magic.Magic(mime=True)
             file_type = mime.from_buffer(data)

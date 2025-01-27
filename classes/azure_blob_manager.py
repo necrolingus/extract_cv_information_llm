@@ -16,10 +16,10 @@ class AzureBlobManager:
     self.headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     self.token = None
     self.token_expiry = None
-    self.refresh_token() # Get the token during initialization
+    self._refresh_token() # Get the token during initialization
     
 
-  def refresh_token(self):
+  def _refresh_token(self):
     """Fetch a new token and update expiry."""
     payload = {
         'grant_type': self.grant_type,
@@ -35,17 +35,17 @@ class AzureBlobManager:
     self.token_expiry = time.time() + expires_in - 60  # Refresh 1 minute before expiry
   
 
-  def get_token(self):
+  def _get_token(self):
     """Ensure the token is valid and return it."""
     if self.token is None or time.time() >= self.token_expiry:
-        self.refresh_token()
+        self._refresh_token()
     return self.token
 
     
   def upload_file(self, storage_url, container_name, prefix, file_name, file_type, data, azure_storage_file_tags):
     url = f"{storage_url}{container_name}/{prefix}/{file_name}"
     headers = {
-      'Authorization': f'Bearer {self.get_token()}',
+      'Authorization': f'Bearer {self._get_token()}',
       'x-ms-blob-type': 'BlockBlob',
       'x-ms-version': '2020-04-08',
       'x-ms-tags': azure_storage_file_tags,
@@ -62,7 +62,7 @@ class AzureBlobManager:
     """
     url = f"{storage_url}?restype=service&comp=userdelegationkey"
     headers = {
-      'Authorization': f'Bearer {self.get_token()}',
+      'Authorization': f'Bearer {self._get_token()}',
       'x-ms-version': '2020-12-06',
       'Content-Type': 'application/xml'
     }
