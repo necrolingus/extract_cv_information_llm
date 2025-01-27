@@ -137,4 +137,7 @@
 *.jpeg
 *.png
 *.pdf
-output.json
+*.log
+*.log.*
+*.txt
+*.json

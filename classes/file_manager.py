@@ -4,8 +4,9 @@ from PIL import Image
 
 
 class FileManager:
-    def __init__(self, file_path):
+    def __init__(self, file_path, app_logging):
         self.file_path = file_path
+        self.app_logging = app_logging
         self.file_type = None
 
     
@@ -14,8 +15,13 @@ class FileManager:
         file_contents = self._read_file()
         if file_contents is not None:
             self.file_type = self._check_if_image(file_contents)
+
             if self.file_type is None:
                 self.file_type = self._check_if_pdf(file_contents)
+
+        if self.file_type is None:
+            self.app_logging.error("Could not determine file type")
+
         return self.file_type, file_contents
 
     
@@ -26,7 +32,7 @@ class FileManager:
                 data = f.read()
                 return data
         except Exception as e:
-            print(f"Could not read the file: {e}")
+            self.app_logging.error(f"Could not read the file: {e}")
             return None
 
     
@@ -41,7 +47,6 @@ class FileManager:
                 return 'image/jpeg'
             return None
         except Exception as e:
-            print(f"Could not determine image type: {e}")
             return None
 
     
@@ -54,5 +59,4 @@ class FileManager:
                 return 'application/pdf'
             return None
         except Exception as e:
-            print(f"Could not determine if PDF: {e}")
             return None

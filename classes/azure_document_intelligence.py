@@ -3,10 +3,11 @@ import time
 
 
 class AzureDocIntel:
-    def __init__(self, full_endpoint, headers, sas_token):
+    def __init__(self, full_endpoint, headers, sas_token, app_logging):
         self.full_endpoint = full_endpoint
         self.headers = headers
         self.sas_token = sas_token
+        self.app_logging = app_logging
         self.payload = {"urlSource": self.sas_token}
 
 
@@ -26,6 +27,6 @@ class AzureDocIntel:
             return response, text_only
         
         except Exception as e:
-            print(f"Error getting OCR text: {e}")
+            self.app_logging.error(f"Error getting OCR text: {e}")
             return None, None
 

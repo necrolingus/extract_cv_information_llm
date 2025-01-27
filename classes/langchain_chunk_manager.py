@@ -3,8 +3,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from io import BytesIO
 
 
-class LangchainManager:
-    def __init__(self, file_contents, file_type):
+class LangchainChunkManager:
+    def __init__(self, file_contents, file_type, app_logging):
         """
         Initialize LangchainManager.
 
@@ -13,6 +13,8 @@ class LangchainManager:
         """
         self.file_contents = file_contents
         self.file_type = file_type
+        self.app_logging = app_logging
+        self.chunk_size = 30000 #number of characters
 
     
     #get text from PDF binary contents
@@ -24,17 +26,20 @@ class LangchainManager:
     
     #slit text to make it manageable for the LLM
     def _split_text(self, text):
-        splitter = RecursiveCharacterTextSplitter(chunk_size=20000, chunk_overlap=2000, separators=["\n", ". "])
+        splitter = RecursiveCharacterTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_size * 0.15, separators=["\n", ". "])
         return splitter.split_text(text)
 
     
     #prepare the input data for the LLM
     def process(self):
-        if self.file_type == "application/pdf":
-            text = self._extract_text_from_pdf()
-        elif self.file_type == "text":
-            text = self.file_contents
-        else:
-            raise ValueError("Unsupported file type.")
+        try:
+            if self.file_type == "application/pdf":
+                text = self._extract_text_from_pdf()
+            elif self.file_type == "text":
+                text = self.file_contents
+            return self._split_text(text)
+        except Exception as e:
+            self.app_logging.error(f"Error processing langchain chunk text: {e}")
+            return None
 
-        return self._split_text(text)
+        
