@@ -91,6 +91,7 @@ if file_type not in ['aplication/pdf']:
     if ocr_response is not None:
         lanchain_manager = LangchainManager(ocr_text, "text")
         langchain_text = lanchain_manager.process()
+        print(len(langchain_text))
         print(langchain_text)
     else:
         print("Error with OCR")

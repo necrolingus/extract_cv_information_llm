@@ -1,5 +1,5 @@
 from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from io import BytesIO
 
 
@@ -24,7 +24,7 @@ class LangchainManager:
     
     #slit text to make it manageable for the LLM
     def _split_text(self, text):
-        splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        splitter = RecursiveCharacterTextSplitter(chunk_size=20000, chunk_overlap=2000, separators=["\n", ". "])
         return splitter.split_text(text)
 
     
